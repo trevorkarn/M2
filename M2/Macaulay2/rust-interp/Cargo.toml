@@ -5,4 +5,8 @@ edition = "2021"
 authors = ["Macaulay2 Rust Port <noreply@example.com>"]
 description = "A Rust-based Macaulay2 parser/interpreter scaffold for the existing C++ engine."
 
+[lib]
+crate-type = ["rlib", "staticlib"]
+
 [dependencies]
+libc = "0.2"

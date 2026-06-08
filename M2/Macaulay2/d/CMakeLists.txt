@@ -118,6 +118,15 @@ if(NOT WITH_JANSSON)
 endif()
 
 ###############################################################################
+## Rust interpreter implementation options
+
+# Option to use Rust implementations alongside D files
+option(USE_RUST_INTERPRETER "Use Rust implementations in addition to D files" OFF)
+
+# When USE_RUST_INTERPRETER is on, we build Rust modules alongside D files
+# They will be linked into the final interpreter, providing optimized implementations
+
+###############################################################################
 ## Generate TAGS file
 # TODO: the order is somewhat different, is it a problem?
 
@@ -153,6 +162,23 @@ target_link_libraries(M2-interpreter PRIVATE M2-supervisor
   Boost::boost # boost_regex is now header-only, so we don't link Boost::regex
   $<$<BOOL:${WITH_TBB}>:TBB::tbb>
   $<$<BOOL:${WITH_FFI}>:FFI::ffi>)
+
+set(RUST_INTERP_DIR ${CMAKE_SOURCE_DIR}/Macaulay2/rust-interp)
+set(RUST_INTERP_LIB ${RUST_INTERP_DIR}/target/release/libm2_rust_interpreter.a)
+add_custom_command(
+  OUTPUT ${RUST_INTERP_LIB}
+  COMMAND cargo build --manifest-path ${RUST_INTERP_DIR}/Cargo.toml --release
+  WORKING_DIRECTORY ${RUST_INTERP_DIR}
+  COMMENT "Building Rust Macaulay2 interpreter scaffold"
+  VERBATIM
+)
+add_custom_target(m2-rust-interp ALL DEPENDS ${RUST_INTERP_LIB})
+add_library(m2_rust_interpreter STATIC IMPORTED)
+set_target_properties(m2_rust_interpreter PROPERTIES IMPORTED_LOCATION ${RUST_INTERP_LIB})
+add_dependencies(m2_rust_interpreter m2-rust-interp)
+add_dependencies(M2-interpreter m2-rust-interp)
+target_link_libraries(M2-interpreter PRIVATE m2_rust_interpreter)
+target_include_directories(M2-interpreter PRIVATE ${RUST_INTERP_DIR})
 
 # TODO: c.f. https://github.com/Macaulay2/M2/issues/2682
 if(NOT APPLE)

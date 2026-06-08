@@ -5,6 +5,14 @@ use evaluate;
 
 header "#include <dlfcn.h>
 	#include <ffi.h>
+	#ifndef LIBFFI_TYPE_FIX
+	/* Ensure `ffi_type` exists as an alias for `struct _ffi_type` when missing */
+	#ifndef LIBFFI_HIDE_BASIC_TYPES
+	/* If libffi exposes the basic types, nothing to do */
+	#else
+	typedef struct _ffi_type ffi_type;
+	#endif
+	#endif
 	/* FFI_BAD_ARGTYPE not introduced until libffi 3.4 in 2021 */
 	#ifndef FFI_BAD_ARGTYPE
 	  #define FFI_BAD_ARGTYPE 3
