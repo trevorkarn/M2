@@ -1,0 +1,8 @@
+[package]
+name = "m2_rust_interpreter"
+version = "0.1.0"
+edition = "2021"
+authors = ["Macaulay2 Rust Port <noreply@example.com>"]
+description = "A Rust-based Macaulay2 parser/interpreter scaffold for the existing C++ engine."
+
+[dependencies]
